@@ -25,7 +25,7 @@ body {
 
 .container {
   margin: 0 auto;
-  max-width: 740px;
+  max-width: 900px;
   padding: 0 10px;
   width: 100%;
 }
@@ -298,6 +298,16 @@ nav {
 footer {
   padding: 20px 0;
   text-align: center;
+}
+
+// Inline code only (block code has .highlighter-rouge on the wrapper div, not the code tag)
+code.highlighter-rouge {
+  font-size: 0.85em;
+  background: #f0f4f8;
+  border: 1px solid #d0d7de;
+  border-radius: 3px;
+  padding: 0.15em 0.4em;
+  color: #c0392b;
 }
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
