@@ -17,7 +17,7 @@ The simplest chunking strategy is a sliding window: split every N tokens with M 
 
 The alternative is semantic chunking: let the content's own structure guide the split points.
 
-[LongTermMemory](https://longtermemory.com)'s `DocumentProcessor` uses a two-stage pipeline — structural splitting followed by semantic coherence — implemented in about 90 lines of Python using LlamaIndex.
+LongTermMemory's `DocumentProcessor` uses a two-stage pipeline — structural splitting followed by semantic coherence — implemented in about 90 lines of Python using LlamaIndex.
 
 ---
 
