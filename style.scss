@@ -241,6 +241,23 @@ nav {
 // .main
 //
 
+.intro-box {
+  background: $lightGray;
+  border-left: 3px solid $blue;
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  font-size:14px;
+
+  h2 {
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
 .posts > .post {
   padding-bottom: 2em;
   border-bottom: 1px solid $lightGray;
