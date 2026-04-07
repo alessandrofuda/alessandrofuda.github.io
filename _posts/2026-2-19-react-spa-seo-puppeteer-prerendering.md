@@ -3,17 +3,17 @@ layout: post
 title: "SEO for React SPAs Without SSR: Puppeteer Prerendering in Production"
 ---
 
-*React SPAs are nearly invisible to social media crawlers and slower to index on Google. Here's how I solved SEO for [LongTermMemory](https://longtermemory.com) without migrating to Next.js — using a two-variant routing pattern and a Puppeteer script that prerenders the landing page at build time.*
+*React SPAs are nearly invisible to social media crawlers and slower to index on Google. Here's how I solved SEO for [LongTermMemory](https://longtermemory.com) without migrating to Next.js , using a two-variant routing pattern and a Puppeteer script that prerenders the landing page at build time.*
 
 ---
 
 ## The Problem
 
-A React SPA with client-side routing serves one thing to every visitor: a nearly empty `index.html` with a `<div id="root"></div>` and a JavaScript bundle. Google's crawler can execute JavaScript and will eventually index the content, but it does so in a second wave — days or weeks after the initial crawl. Social media crawlers (Facebook, Twitter/X, LinkedIn, Slack) don't execute JavaScript at all. They see the empty shell, find no `og:title` or `og:description` meta tags, and either show a blank card or scrape the minimal fallback tags from `<head>`.
+A React SPA with client-side routing serves one thing to every visitor: a nearly empty `index.html` with a `<div id="root"></div>` and a JavaScript bundle. Google's crawler can execute JavaScript and will eventually index the content, but it does so in a second wave , days or weeks after the initial crawl. Social media crawlers (Facebook, Twitter/X, LinkedIn, Slack) don't execute JavaScript at all. They see the empty shell, find no `og:title` or `og:description` meta tags, and either show a blank card or scrape the minimal fallback tags from `<head>`.
 
-For a SaaS landing page, this is a real problem. Pricing, FAQ, feature descriptions — all the content that matters for SEO and social sharing — exists only in JavaScript. It never lands in the raw HTML that crawlers read.
+For a SaaS landing page, this is a real problem. Pricing, FAQ, feature descriptions , all the content that matters for SEO and social sharing , exists only in JavaScript. It never lands in the raw HTML that crawlers read.
 
-The standard answer is server-side rendering: Next.js, Remix, or a similar framework. But LongTermMemory's frontend is a standalone Vite + React 19 SPA that has been in production for months. Migrating to Next.js would mean rewriting routing, data fetching patterns, authentication callbacks, Stripe integration, and the Tailwind configuration — weeks of work for a feature that benefits one route.
+The standard answer is server-side rendering: Next.js, Remix, or a similar framework. But LongTermMemory's frontend is a standalone Vite + React 19 SPA that has been in production for months. Migrating to Next.js would mean rewriting routing, data fetching patterns, authentication callbacks, Stripe integration, and the Tailwind configuration , weeks of work for a feature that benefits one route.
 
 The alternative: **prerender the landing page at build time using Puppeteer**, and serve the resulting static HTML as `dist/index.html`.
 
@@ -49,8 +49,8 @@ function LandingRoute() {
 }
 ```
 
-- **`Landing`** — the full authenticated experience: upload forms, Stripe checkout, `UserContext` for user state, real-time plan limits.
-- **`LandingPublic`** — a stateless version with no `UserContext`, no Stripe, no authenticated API calls. Its only job is to render all the landing page content as static HTML that Puppeteer can capture.
+- **`Landing`** , the full authenticated experience: upload forms, Stripe checkout, `UserContext` for user state, real-time plan limits.
+- **`LandingPublic`** , a stateless version with no `UserContext`, no Stripe, no authenticated API calls. Its only job is to render all the landing page content as static HTML that Puppeteer can capture.
 
 Both components look identical to users. The split is invisible at runtime.
 
@@ -113,7 +113,7 @@ useEffect(() => {
 
 This means the prerendered HTML contains real pricing numbers, not hardcoded values that would go stale.
 
-**`react-helmet-async` for full meta coverage.** All SEO meta tags — Open Graph, Twitter Card, canonical URL, keywords, JSON-LD structured data — are injected via `<Helmet>` in `LandingPublic`. Because Puppeteer captures the page after JavaScript executes, these tags end up in the final HTML:
+**`react-helmet-async` for full meta coverage.** All SEO meta tags , Open Graph, Twitter Card, canonical URL, keywords, JSON-LD structured data , are injected via `<Helmet>` in `LandingPublic`. Because Puppeteer captures the page after JavaScript executes, these tags end up in the final HTML:
 
 ```tsx
 <Helmet>
@@ -166,7 +166,7 @@ async function startServer(startPort = 3010) {
       throw err;
     }
   }
-  throw new Error(`All ports ${startPort}–${maxPort} are already in use`);
+  throw new Error(`All ports ${startPort},${maxPort} are already in use`);
 }
 
 async function prerenderPage() {
@@ -230,7 +230,7 @@ A few design choices worth noting:
 
 **`evaluateOnNewDocument` vs `evaluate`.** Using `evaluateOnNewDocument` to clear `localStorage` runs the code *before any page script executes*, including React's initial render. If you cleared `localStorage` after navigation with `evaluate`, the React component tree would already have read `auth_token`, rendered `Landing` instead of `LandingPublic`, and it would be too late.
 
-**`waitUntil: 'networkidle0'`** waits until there are no more than 0 in-flight network requests for 500ms. This is the right choice here because `LandingPublic` fetches pricing data on mount — you need the API response to arrive before capturing the HTML.
+**`waitUntil: 'networkidle0'`** waits until there are no more than 0 in-flight network requests for 500ms. This is the right choice here because `LandingPublic` fetches pricing data on mount , you need the API response to arrive before capturing the HTML.
 
 **The scroll loop.** `IntersectionObserver` only fires when elements enter the viewport. A headless browser has a viewport but doesn't scroll automatically. The 400px step with a 100ms delay gives each observer time to fire and its component time to mount before moving to the next section.
 
@@ -250,8 +250,8 @@ A few design choices worth noting:
 }
 ```
 
-- **`build:prerender`** — development build + prerender (uses `localhost:8080` API, for local testing)
-- **`build:production`** — production build + prerender (uses `https://api.longtermemory.com`)
+- **`build:prerender`** , development build + prerender (uses `localhost:8080` API, for local testing)
+- **`build:production`** , production build + prerender (uses `https://api.longtermemory.com`)
 
 The prerender step requires the backend API to be reachable during the build, because `LandingPublic` fetches live pricing. In the CI/CD pipeline this means the production build runs against the live API.
 
@@ -260,14 +260,14 @@ The prerender step requires the backend API to be reachable during the build, be
 ## What This Solves and What It Doesn't
 
 **Solved:**
-- All landing page text (hero copy, feature descriptions, FAQ answers) is in the raw HTML — Google indexes it in the first crawl wave, no JavaScript execution required
-- `og:title`, `og:description`, `og:image`, `twitter:card` are baked into the HTML — social share previews work correctly on all platforms
-- JSON-LD structured data with real pricing is present — eligible for Google Rich Results (price, availability, product type)
-- `<title>` and `<meta name="description">` exist as static HTML, not injected by JavaScript — the minimal fallback in `index.html` is a backup, not the primary
+- All landing page text (hero copy, feature descriptions, FAQ answers) is in the raw HTML , Google indexes it in the first crawl wave, no JavaScript execution required
+- `og:title`, `og:description`, `og:image`, `twitter:card` are baked into the HTML , social share previews work correctly on all platforms
+- JSON-LD structured data with real pricing is present , eligible for Google Rich Results (price, availability, product type)
+- `<title>` and `<meta name="description">` exist as static HTML, not injected by JavaScript , the minimal fallback in `index.html` is a backup, not the primary
 
 **Not solved:**
-- Dynamic routes (`/study-plan/pr/:id`, `/study-session/pr/:id`, `/dashboard`) are not prerendered — they require authentication anyway, so they don't need to be indexed
-- The `/privacy` and `/terms` routes are plain React pages with no prerendering — they're text-heavy and could benefit from it, but haven't been a priority
+- Dynamic routes (`/study-plan/pr/:id`, `/study-session/pr/:id`, `/dashboard`) are not prerendered , they require authentication anyway, so they don't need to be indexed
+- The `/privacy` and `/terms` routes are plain React pages with no prerendering , they're text-heavy and could benefit from it, but haven't been a priority
 - On-page SEO beyond the landing page (canonical tags, sitemap) is handled separately
 
 ---
@@ -281,7 +281,7 @@ Before the prerender script runs, `index.html` contains minimal static meta tags
 <meta name="description" content="Master any subject with AI-powered question-answer generation and spaced repetition..." />
 ```
 
-If the prerender fails (API unreachable, timeout, Puppeteer crash), the build still succeeds and the fallback tags are served. They're not as rich as the fully rendered HTML — no OG tags, no JSON-LD — but they're better than nothing and they prevent the build pipeline from blocking on an SEO failure.
+If the prerender fails (API unreachable, timeout, Puppeteer crash), the build still succeeds and the fallback tags are served. They're not as rich as the fully rendered HTML , no OG tags, no JSON-LD , but they're better than nothing and they prevent the build pipeline from blocking on an SEO failure.
 
 ---
 
@@ -295,4 +295,4 @@ If the prerender fails (API unreachable, timeout, Puppeteer crash), the build st
 
 ---
 
-The full setup — `LandingRoute`, `LandingPublic`, `LazySection`, and the prerender script — took about a day to build and deploy. The authenticated app was entirely untouched. Google Search Console now shows the landing page content indexed in the first crawl, and social share previews work correctly across all platforms.
+The full setup , `LandingRoute`, `LandingPublic`, `LazySection`, and the prerender script , took about a day to build and deploy. The authenticated app was entirely untouched. Google Search Console now shows the landing page content indexed in the first crawl, and social share previews work correctly across all platforms.

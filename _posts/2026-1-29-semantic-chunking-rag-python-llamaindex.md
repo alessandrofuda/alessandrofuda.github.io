@@ -3,7 +3,7 @@ layout: post
 title: "Two-Stage Semantic Chunking for RAG in Python: Structural Splitting + Semantic Coherence"
 ---
 
-*Fixed-size chunking splits text at arbitrary token boundaries, cutting mid-sentence and blending unrelated topics into the same chunk. Here's how to build a two-stage pipeline with LlamaIndex — structural splitting first, semantic coherence second — and why adaptive sizing matters for long documents.*
+*Fixed-size chunking splits text at arbitrary token boundaries, cutting mid-sentence and blending unrelated topics into the same chunk. Here's how to build a two-stage pipeline with LlamaIndex , structural splitting first, semantic coherence second , and why adaptive sizing matters for long documents.*
 
 ---
 
@@ -11,13 +11,13 @@ title: "Two-Stage Semantic Chunking for RAG in Python: Structural Splitting + Se
 
 The simplest chunking strategy is a sliding window: split every N tokens with M tokens of overlap. It's easy to implement and works reasonably well on clean, uniform text. It breaks down in two common situations.
 
-**Mid-sentence splits.** A chunk that ends at token 512 may cut a sentence in half. The embedding for that chunk represents a dangling thought — and when the retriever pulls it back, the LLM receives incomplete context. Overlap helps but doesn't eliminate the problem: two consecutive chunks now share a sentence fragment, both pulling each other slightly off-topic.
+**Mid-sentence splits.** A chunk that ends at token 512 may cut a sentence in half. The embedding for that chunk represents a dangling thought , and when the retriever pulls it back, the LLM receives incomplete context. Overlap helps but doesn't eliminate the problem: two consecutive chunks now share a sentence fragment, both pulling each other slightly off-topic.
 
-**Topic bleed.** A 1,024-token window over a textbook chapter will often straddle two sections — the end of "Cellular Respiration" and the start of "Photosynthesis." The embedding averages those topics, making the chunk a poor match for queries about either one.
+**Topic bleed.** A 1,024-token window over a textbook chapter will often straddle two sections , the end of "Cellular Respiration" and the start of "Photosynthesis." The embedding averages those topics, making the chunk a poor match for queries about either one.
 
 The alternative is semantic chunking: let the content's own structure guide the split points.
 
-LongTermMemory's `DocumentProcessor` uses a two-stage pipeline — structural splitting followed by semantic coherence — implemented in about 90 lines of Python using LlamaIndex.
+LongTermMemory's `DocumentProcessor` uses a two-stage pipeline , structural splitting followed by semantic coherence , implemented in about 90 lines of Python using LlamaIndex.
 
 ---
 
@@ -46,7 +46,7 @@ TextChunk objects → Qdrant
 
 ## Stage 1: Structural Splitting With `SentenceSplitter`
 
-The first stage uses LlamaIndex's `SentenceSplitter` to break the document into structurally coherent pieces. The key parameter is `separator="\n\n"` — the splitter preferentially splits on paragraph breaks before falling back to sentence boundaries:
+The first stage uses LlamaIndex's `SentenceSplitter` to break the document into structurally coherent pieces. The key parameter is `separator="\n\n"` , the splitter preferentially splits on paragraph breaks before falling back to sentence boundaries:
 
 ```python
 sentence_splitter = SentenceSplitter(
@@ -57,7 +57,7 @@ sentence_splitter = SentenceSplitter(
 initial_nodes = sentence_splitter.get_nodes_from_documents([llama_doc])
 ```
 
-With `chunk_size=1024`, each initial node is at most 1,024 tokens. But because `"\n\n"` is the preferred split point, a section that ends at token 900 followed by a paragraph break will produce a 900-token chunk — no mid-paragraph split — rather than running over into the next section to pad out to 1,024 tokens.
+With `chunk_size=1024`, each initial node is at most 1,024 tokens. But because `"\n\n"` is the preferred split point, a section that ends at token 900 followed by a paragraph break will produce a 900-token chunk , no mid-paragraph split , rather than running over into the next section to pad out to 1,024 tokens.
 
 This stage doesn't require any API call. It's pure text processing, fast and free.
 
@@ -65,7 +65,7 @@ This stage doesn't require any API call. It's pure text processing, fast and fre
 
 ## Stage 2: Semantic Coherence With `SemanticSplitterNodeParser`
 
-The second stage takes the structural chunks from Stage 1 and re-examines their boundaries using embedding similarity. Adjacent sentences are grouped by semantic similarity — if two consecutive sentences are closely related, they stay in the same chunk; if similarity drops below a threshold, a new split is inserted.
+The second stage takes the structural chunks from Stage 1 and re-examines their boundaries using embedding similarity. Adjacent sentences are grouped by semantic similarity , if two consecutive sentences are closely related, they stay in the same chunk; if similarity drops below a threshold, a new split is inserted.
 
 ```python
 semantic_splitter = SemanticSplitterNodeParser(
@@ -79,11 +79,11 @@ semantic_nodes = semantic_splitter.get_nodes_from_documents(
 )
 ```
 
-The Stage 1 nodes are re-wrapped as `LlamaDocument` objects before being passed to the semantic splitter. This is necessary because `SemanticSplitterNodeParser.get_nodes_from_documents` expects `Document` inputs, not `TextNode` inputs — passing `initial_nodes` directly would raise a type error.
+The Stage 1 nodes are re-wrapped as `LlamaDocument` objects before being passed to the semantic splitter. This is necessary because `SemanticSplitterNodeParser.get_nodes_from_documents` expects `Document` inputs, not `TextNode` inputs , passing `initial_nodes` directly would raise a type error.
 
 **`buffer_size`** controls how many surrounding sentences are included when computing the embedding for a sentence. `buffer_size=1` means each sentence is embedded with one sentence of context on each side; `buffer_size=3` means three sentences of context. A larger buffer makes the embeddings smoother and more stable, reducing over-splitting on long content.
 
-**`breakpoint_percentile_threshold`** sets how high the similarity drop must be before a split is inserted. At `95`, only the most semantically divergent sentence boundaries become chunk boundaries — the splitter produces fewer, larger chunks. At `97`, even fewer splits.
+**`breakpoint_percentile_threshold`** sets how high the similarity drop must be before a split is inserted. At `95`, only the most semantically divergent sentence boundaries become chunk boundaries , the splitter produces fewer, larger chunks. At `97`, even fewer splits.
 
 The `embed_model` is `OpenAIEmbedding(model="text-embedding-3-small")`, initialized once in `DocumentProcessor.__init__` and reused across all documents in the job.
 
@@ -91,7 +91,7 @@ The `embed_model` is `OpenAIEmbedding(model="text-embedding-3-small")`, initiali
 
 ## Adaptive Sizing: Short vs. Long Content
 
-The parameters above are not fixed — they switch based on estimated document length:
+The parameters above are not fixed , they switch based on estimated document length:
 
 ```python
 total_tokens = estimated_total_tokens if estimated_total_tokens is not None else len(text) // 4
@@ -108,9 +108,9 @@ else:
     stage2_breakpoint_threshold = 95
 ```
 
-The token estimate is `len(text) // 4` — one token per four characters, the standard approximation. At 10,000 tokens the threshold is around 40,000 characters, or roughly 15–20 pages of dense text.
+The token estimate is `len(text) // 4` , one token per four characters, the standard approximation. At 10,000 tokens the threshold is around 40,000 characters, or roughly 15,20 pages of dense text.
 
-**Why larger chunks for long content?** Each call to `SemanticSplitterNodeParser` embeds every sentence in every Stage 1 node. A 100-page textbook at standard settings (chunk_size=1024) produces ~40 Stage 1 nodes, each of which the semantic splitter processes sentence-by-sentence — potentially hundreds of embedding API calls. At long-content settings (chunk_size=2048, buffer_size=3, threshold=97), the Stage 1 pass produces fewer, larger nodes, the semantic pass is less aggressive about splitting, and the total embedding count drops substantially.
+**Why larger chunks for long content?** Each call to `SemanticSplitterNodeParser` embeds every sentence in every Stage 1 node. A 100-page textbook at standard settings (chunk_size=1024) produces ~40 Stage 1 nodes, each of which the semantic splitter processes sentence-by-sentence , potentially hundreds of embedding API calls. At long-content settings (chunk_size=2048, buffer_size=3, threshold=97), the Stage 1 pass produces fewer, larger nodes, the semantic pass is less aggressive about splitting, and the total embedding count drops substantially.
 
 The tradeoff is retrieval granularity: larger chunks are coarser, but for long documents the alternative is prohibitive API cost and latency.
 
@@ -120,7 +120,7 @@ All five parameters are configurable via environment variables, so the threshold
 
 ## The Fallback: Structural Splitting Only
 
-If no OpenAI API key is provided — or if embedding model initialization fails — the semantic stage is skipped:
+If no OpenAI API key is provided , or if embedding model initialization fails , the semantic stage is skipped:
 
 ```python
 if self.embed_model is None:
@@ -138,11 +138,11 @@ Stage 1 output is used as-is. The chunks are structurally clean (paragraph-respe
 
 ## Chunk Enrichment: Section Titles
 
-After chunking, each `TextChunk` gets a `section_title` — a short label that tells the Q&A generator what the chunk is about. This improves Q&A quality: a chunk labeled "The Krebs Cycle" produces more focused questions than unlabeled prose.
+After chunking, each `TextChunk` gets a `section_title` , a short label that tells the Q&A generator what the chunk is about. This improves Q&A quality: a chunk labeled "The Krebs Cycle" produces more focused questions than unlabeled prose.
 
 Title assignment happens in `append_section_title_to_chunks`, with two priority levels:
 
-**Priority 1 — structural heading extraction.** `_extract_structural_heading` scans each node's metadata and content for heading signals:
+**Priority 1 , structural heading extraction.** `_extract_structural_heading` scans each node's metadata and content for heading signals:
 
 ```python
 # 1. Check node metadata
@@ -165,14 +165,14 @@ if len(first_line) < 100 and len(first_line) > 3:
     # Title case, ≤10 words
     if first_line.istitle() and len(first_line.split()) <= 10:
         return first_line
-    # All caps, 3–10 words
+    # All caps, 3,10 words
     if first_line.isupper() and 3 <= len(first_line.split()) <= 10:
         return first_line
 ```
 
 The `title` metadata key from LlamaIndex is intentionally filtered: if it equals `"document"` (the placeholder passed during wrapping), or if it looks like a filename or file path, it's discarded.
 
-**Priority 2 — LLM-generated title.** When no structural heading is found, `generate_chunk_title_with_llm` calls GPT-3.5-turbo with the first 500 characters of the chunk:
+**Priority 2 , LLM-generated title.** When no structural heading is found, `generate_chunk_title_with_llm` calls GPT-3.5-turbo with the first 500 characters of the chunk:
 
 ```python
 response = self.openai_client.chat.completions.create(
@@ -187,7 +187,7 @@ response = self.openai_client.chat.completions.create(
 )
 ```
 
-`max_tokens=30` bounds the response. `temperature=0.3` keeps the title deterministic. The first 500 characters are enough to capture the chunk's topic without sending the full chunk — which would be wasteful for long chunks and isn't needed for a title.
+`max_tokens=30` bounds the response. `temperature=0.3` keeps the title deterministic. The first 500 characters are enough to capture the chunk's topic without sending the full chunk , which would be wasteful for long chunks and isn't needed for a title.
 
 If the LLM returns a title longer than 15 words (the model occasionally ignores the 10-word instruction), it's truncated to 10 words. If the LLM call fails after two retries, `section_title` is set to `None` and a `logger.error` is emitted.
 
@@ -210,7 +210,7 @@ class TextChunk(BaseModel):
     description: str = ""
 ```
 
-`token_count` is the `len(content) / 4` estimate computed in `convert_chunks_to_text_chunks`. `document_id`, `document_path`, `filename`, and `description` are populated by the Celery task after the chunk is returned from `chunk_document` — the processor itself doesn't know about the database record, only the content.
+`token_count` is the `len(content) / 4` estimate computed in `convert_chunks_to_text_chunks`. `document_id`, `document_path`, `filename`, and `description` are populated by the Celery task after the chunk is returned from `chunk_document` , the processor itself doesn't know about the database record, only the content.
 
 ---
 
@@ -244,15 +244,15 @@ def chunk_document(self, document_path: str, original_filename: str) -> list[Tex
     return chunks
 ```
 
-`page_count` from the PDF extractor is not currently propagated into `TextChunk.page_number` — that field is populated separately when the Celery task has per-page data available. For weblinks, `semantic_chunk_text` is called directly (bypassing `chunk_document`) with a pre-computed token estimate passed as `estimated_total_tokens` to avoid a redundant `len(text) // 4` computation.
+`page_count` from the PDF extractor is not currently propagated into `TextChunk.page_number` , that field is populated separately when the Celery task has per-page data available. For weblinks, `semantic_chunk_text` is called directly (bypassing `chunk_document`) with a pre-computed token estimate passed as `estimated_total_tokens` to avoid a redundant `len(text) // 4` computation.
 
 ---
 
 ## What I'd Do Differently
 
-**Cache the structural heading extraction result from Stage 1 into Stage 2.** The current pipeline runs `_extract_structural_heading` on Stage 2 output — nodes that the semantic splitter may have merged or split relative to Stage 1 nodes. Headings that appeared at the start of a Stage 1 node may no longer appear at the start of the corresponding Stage 2 node. Passing heading metadata through the node pipeline (rather than re-extracting from content) would be more reliable.
+**Cache the structural heading extraction result from Stage 1 into Stage 2.** The current pipeline runs `_extract_structural_heading` on Stage 2 output , nodes that the semantic splitter may have merged or split relative to Stage 1 nodes. Headings that appeared at the start of a Stage 1 node may no longer appear at the start of the corresponding Stage 2 node. Passing heading metadata through the node pipeline (rather than re-extracting from content) would be more reliable.
 
-**Use a token counter instead of `len(text) // 4`.** The character-to-token ratio varies significantly across languages and content types — code, Chinese text, and LaTeX all have different ratios. `tiktoken` with the `cl100k_base` encoding would give exact counts for GPT and embedding models at negligible cost.
+**Use a token counter instead of `len(text) // 4`.** The character-to-token ratio varies significantly across languages and content types , code, Chinese text, and LaTeX all have different ratios. `tiktoken` with the `cl100k_base` encoding would give exact counts for GPT and embedding models at negligible cost.
 
 **Batch the LLM title calls.** `append_section_title_to_chunks` calls `generate_chunk_title_with_llm` one chunk at a time in a loop. For a document with 40 chunks needing LLM titles, that's 40 sequential API calls. A single prompt with all chunk previews, or a batch of parallel async calls, would reduce wall-clock time substantially.
 
@@ -260,6 +260,6 @@ def chunk_document(self, document_path: str, original_filename: str) -> list[Tex
 
 ---
 
-The two-stage approach costs one embedding API call per document at index time — the semantic stage processes every sentence in every Stage 1 node. For a 50-page document on short-content settings, that's on the order of a few hundred embedding vectors. The payoff is chunks that respect both document structure and semantic boundaries, which translates directly to fewer garbage retrievals when a user's flashcard session asks the RAG pipeline for context.
+The two-stage approach costs one embedding API call per document at index time , the semantic stage processes every sentence in every Stage 1 node. For a 50-page document on short-content settings, that's on the order of a few hundred embedding vectors. The payoff is chunks that respect both document structure and semantic boundaries, which translates directly to fewer garbage retrievals when a user's flashcard session asks the RAG pipeline for context.
 
-The full implementation is part of [LongTermMemory](https://longtermemory.com) — an AI study platform built on FastAPI, LlamaIndex, Qdrant, and Laravel 12.
+The full implementation is part of [LongTermMemory](https://longtermemory.com) , an AI study platform built on FastAPI, LlamaIndex, Qdrant, and Laravel 12.

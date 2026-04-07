@@ -3,9 +3,9 @@ layout: post
 title: "Passwordless Auth in Laravel 12: Implementing Magic Link Login with Sanctum"
 ---
 
-*No passwords, no reset flows, no bcrypt. Just an email, a signed URL, and a Sanctum token. Here's how to implement magic link authentication in Laravel 12 from scratch — including the edge cases that bite you in production.*
+*No passwords, no reset flows, no bcrypt. Just an email, a signed URL, and a Sanctum token. Here's how to implement magic link authentication in Laravel 12 from scratch , including the edge cases that bite you in production.*
 
-Passwords are a liability. Users forget them, reuse them, and your team ends up maintaining reset flows, email verification, and "remember me" cookie logic for years. For LongTermMemory I went fully passwordless from day one: the only way to log in is to receive a magic link by email. This post walks through the complete implementation — backend in Laravel 12 + Sanctum, frontend in React — including the production gotchas that aren't in any tutorial.
+Passwords are a liability. Users forget them, reuse them, and your team ends up maintaining reset flows, email verification, and "remember me" cookie logic for years. For LongTermMemory I went fully passwordless from day one: the only way to log in is to receive a magic link by email. This post walks through the complete implementation , backend in Laravel 12 + Sanctum, frontend in React , including the production gotchas that aren't in any tutorial.
 
 ---
 
@@ -65,11 +65,11 @@ A few design decisions here:
 
 **Known vs unknown email.** If the email exists and is verified, the user gets a `magic.login` link. If the email is new or unverified, a user record is created and they get a `magic.register` link (which also marks `email_verified_at` on click). Both flows converge at the same code-generation step.
 
-**`URL::temporarySignedRoute()`** generates a URL with an HMAC signature and an expiry timestamp baked in. Laravel validates both automatically when you call `$request->hasValidSignature()`. The link expires in 15 minutes — long enough to be usable, short enough to limit exposure.
+**`URL::temporarySignedRoute()`** generates a URL with an HMAC signature and an expiry timestamp baked in. Laravel validates both automatically when you call `$request->hasValidSignature()`. The link expires in 15 minutes , long enough to be usable, short enough to limit exposure.
 
 **OTP in the same email.** Every magic link email also contains a 6-digit OTP (`rand(100000, 999999)`), valid for 15 minutes. Users on mobile apps or email clients that mangle URLs can type the code instead. Same security properties, different UX.
 
-**Never enumerate users.** Both branches return HTTP 200 to the caller — the `$status` field inside the JSON body differs (200 vs 404), but the HTTP status code is always 200. This prevents email enumeration via timing or status code differences.
+**Never enumerate users.** Both branches return HTTP 200 to the caller , the `$status` field inside the JSON body differs (200 vs 404), but the HTTP status code is always 200. This prevents email enumeration via timing or status code differences.
 
 ---
 
@@ -110,7 +110,7 @@ private function generateCodeAndRedirect(User $user, ?string $redirectTo = null)
 }
 ```
 
-The signed URL is valid for 15 minutes. After validation, a fresh UUID code is generated — but **only the SHA-256 hash is stored**, never the plaintext. This is the same principle as storing hashed passwords: if your database leaks, raw codes can't be replayed. The code itself lives in the URL for 5 minutes before it expires.
+The signed URL is valid for 15 minutes. After validation, a fresh UUID code is generated , but **only the SHA-256 hash is stored**, never the plaintext. This is the same principle as storing hashed passwords: if your database leaks, raw codes can't be replayed. The code itself lives in the URL for 5 minutes before it expires.
 
 The redirect sends the browser to the React frontend at `/auth/callback?code=<uuid>`, which then exchanges it for a Sanctum token.
 
@@ -149,7 +149,7 @@ public function exchangeCodeWithToken(Request $request): JsonResponse
 }
 ```
 
-Three checks before issuing a token: the hash matches, the code hasn't expired, and it hasn't been used before. The `used` flag is set to `true` immediately after the record is found, before the token is issued. This stops casual replay attempts — though a fully concurrent double-submit at the exact same millisecond could theoretically pass both `where('used', false)` queries before either update lands. A proper fix wraps the read-and-update in a database transaction; for a low-traffic auth endpoint this race window is acceptable, but worth noting.
+Three checks before issuing a token: the hash matches, the code hasn't expired, and it hasn't been used before. The `used` flag is set to `true` immediately after the record is found, before the token is issued. This stops casual replay attempts , though a fully concurrent double-submit at the exact same millisecond could theoretically pass both `where('used', false)` queries before either update lands. A proper fix wraps the read-and-update in a database transaction; for a low-traffic auth endpoint this race window is acceptable, but worth noting.
 
 The `notifications_enabled` re-enable on login is a deliberate UX choice: users who were auto-disabled after 30 days of inactivity get their reminders back the moment they log in again. Logging in is an implicit signal of renewed interest.
 
@@ -159,7 +159,7 @@ The `notifications_enabled` re-enable on login is a deliberate UX choice: users 
 
 ## The Reverse Proxy Signature Gotcha
 
-In production, the app runs behind Nginx. Signed URLs are generated using `config('app.url')` as the base — which might be `https://api.longtermemory.com`. But the request that arrives at Laravel's validation layer may have `http://localhost` as its host (the proxy doesn't forward `X-Forwarded-Proto` correctly in all configurations).
+In production, the app runs behind Nginx. Signed URLs are generated using `config('app.url')` as the base , which might be `https://api.longtermemory.com`. But the request that arrives at Laravel's validation layer may have `http://localhost` as its host (the proxy doesn't forward `X-Forwarded-Proto` correctly in all configurations).
 
 Laravel's `$request->hasValidSignature()` reconstructs the URL from the incoming request to verify the HMAC. If the scheme or host differs from what was signed, validation silently fails.
 
@@ -186,7 +186,7 @@ private function hasValidAppUrlSignature(Request $request, array $ignoreQuery = 
 }
 ```
 
-The test that covers this scenario is worth reading — it sets `APP_URL` to HTTPS, generates a signed URL with that scheme, then sends the request as a relative path (simulating a proxy that strips the scheme):
+The test that covers this scenario is worth reading , it sets `APP_URL` to HTTPS, generates a signed URL with that scheme, then sends the request as a relative path (simulating a proxy that strips the scheme):
 
 ```php
 public function test_magic_login_with_redirect_works_when_scheme_differs_from_app_url(): void
@@ -213,13 +213,13 @@ public function test_magic_login_with_redirect_works_when_scheme_differs_from_ap
 }
 ```
 
-Without this fallback, every production login fails silently with a redirect to `/login?error=Invalid+or+expired+link` — a very confusing bug to diagnose.
+Without this fallback, every production login fails silently with a redirect to `/login?error=Invalid+or+expired+link` , a very confusing bug to diagnose.
 
 ---
 
 ## Open Redirect Protection
 
-The `magic.login.redirect` route accepts a `redirect_to` query parameter so that notification emails can deep-link users directly to their study plan after login. But this parameter must not be part of the URL signature — it's appended after signing because the destination URL is determined at notification send time, not at route generation time.
+The `magic.login.redirect` route accepts a `redirect_to` query parameter so that notification emails can deep-link users directly to their study plan after login. But this parameter must not be part of the URL signature , it's appended after signing because the destination URL is determined at notification send time, not at route generation time.
 
 This means `redirect_to` must be validated separately:
 
@@ -241,7 +241,7 @@ public function magicLoginWithRedirect(Request $request, $user_id)
 }
 ```
 
-`hasValidAppUrlSignature($request, ['redirect_to'])` is the custom wrapper from the previous section — internally it calls `$request->hasValidSignatureWhileIgnoring(['redirect_to'])`, which validates the HMAC while ignoring that specific query parameter. Then the value itself is checked: only relative paths (starting with `/`) are forwarded. Anything else — `http://evil.com/steal`, `//evil.com`, `javascript:` — is silently dropped.
+`hasValidAppUrlSignature($request, ['redirect_to'])` is the custom wrapper from the previous section , internally it calls `$request->hasValidSignatureWhileIgnoring(['redirect_to'])`, which validates the HMAC while ignoring that specific query parameter. Then the value itself is checked: only relative paths (starting with `/`) are forwarded. Anything else , `http://evil.com/steal`, `//evil.com`, `javascript:` , is silently dropped.
 
 The test covers this:
 
@@ -311,7 +311,7 @@ function AuthCallback() {
 }
 ```
 
-`useRef` persists across re-renders and across StrictMode's double-mount cycle. Once `hasExchanged.current` is set to `true`, any subsequent invocation of the effect exits immediately. Note that this guard is intentionally not in the dependency array — it's a one-shot flag, not reactive state.
+`useRef` persists across re-renders and across StrictMode's double-mount cycle. Once `hasExchanged.current` is set to `true`, any subsequent invocation of the effect exits immediately. Note that this guard is intentionally not in the dependency array , it's a one-shot flag, not reactive state.
 
 The frontend also validates `redirect_to` independently, even though the backend already validated it. Defense in depth: the frontend ensures it never navigates to an external URL regardless of what arrives in the URL parameter.
 
@@ -323,13 +323,13 @@ const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 await authApi.updateTimezone(timezone); // e.g. "Europe/Rome"
 ```
 
-This powers the timezone-aware 8 AM study reminder emails — but that's a topic for another post.
+This powers the timezone-aware 8 AM study reminder emails , but that's a topic for another post.
 
 ---
 
 ## Testing: `actingAsUser()` vs `actingAs()`
 
-Laravel's built-in `actingAs($user)` sets the authenticated user but doesn't create a real Sanctum token. This is fine for most tests, but breaks any code that calls `$request->user()->currentAccessToken()` — specifically, the logout endpoint.
+Laravel's built-in `actingAs($user)` sets the authenticated user but doesn't create a real Sanctum token. This is fine for most tests, but breaks any code that calls `$request->user()->currentAccessToken()` , specifically, the logout endpoint.
 
 The solution is a custom `actingAsUser()` helper in `TestCase`:
 
@@ -366,17 +366,17 @@ With plain `actingAs()`, `currentAccessToken()` returns `null` and the logout co
 
 Three tables drive the auth system:
 
-**`magic_login_codes`** — short-lived one-time codes:
+**`magic_login_codes`** , short-lived one-time codes:
 ```sql
 id, code (SHA-256 hash), user_id, expires_at, used (bool), created_at
 ```
 
-**`otps`** — 6-digit fallback codes:
+**`otps`** , 6-digit fallback codes:
 ```sql
 id, user_id, otp, expires_at, used (bool), created_at, updated_at
 ```
 
-**`personal_access_tokens`** — Sanctum tokens (Laravel manages this table automatically):
+**`personal_access_tokens`** , Sanctum tokens (Laravel manages this table automatically):
 ```sql
 id, tokenable_type, tokenable_id, name, token (SHA-256), last_used_at, expires_at, created_at, updated_at
 ```
@@ -391,10 +391,10 @@ Cleanup: the `custom:clean-table-in-db personal_access_tokens` artisan command p
 
 **Rate-limit the magic link endpoint.** Right now a bad actor can trigger unlimited emails to any address. A simple `RateLimiter::attempt('magic-link:' . $email, 5, fn() => ..., 60)` per email address per minute would be enough.
 
-**Store the code in Redis instead of MySQL.** The `magic_login_codes` table has high write churn (insert on every login, update on exchange, prune periodically). Redis with a 5-minute TTL is a better fit — auto-expiry, no cleanup job, lower latency.
+**Store the code in Redis instead of MySQL.** The `magic_login_codes` table has high write churn (insert on every login, update on exchange, prune periodically). Redis with a 5-minute TTL is a better fit , auto-expiry, no cleanup job, lower latency.
 
 ---
 
 Passwordless auth is one of those features that looks simple until you implement it properly. The signed URL mechanics, the reverse proxy normalization, the open redirect validation, and the StrictMode guard are all edge cases that don't appear in tutorials but will bite you in production. Hopefully this saves you some debugging time.
 
-The full implementation is part of [LongTermMemory](https://longtermemory.com) — an AI-powered study platform built on Laravel 12 and React 19.
+The full implementation is part of [LongTermMemory](https://longtermemory.com) , an AI-powered study platform built on Laravel 12 and React 19.

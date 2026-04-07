@@ -3,15 +3,15 @@ layout: post
 title: "The SM-2 Algorithm in Practice: Building a Spaced Repetition System in Laravel"
 ---
 
-*Spaced repetition is the most evidence-backed technique for long-term memorization. Here's how to go from the original SM-2 paper to a working Laravel implementation — including the scheduling logic, timezone handling, strict mode, and the honest parts where this diverges from full SM-2.*
+*Spaced repetition is the most evidence-backed technique for long-term memorization. Here's how to go from the original SM-2 paper to a working Laravel implementation , including the scheduling logic, timezone handling, strict mode, and the honest parts where this diverges from full SM-2.*
 
-When I built [LongTermMemory](https://longtermemory.com) — an AI-powered study platform that auto-generates Q&A pairs from uploaded documents — the spaced repetition engine was the part I most wanted to get right. The AI can generate great questions; spaced repetition is what moves the answers into long-term memory. This post walks through the full implementation: the database schema, the scheduling enum, the item-fetching logic, and the React evaluation UI.
+When I built [LongTermMemory](https://longtermemory.com) , an AI-powered study platform that auto-generates Q&A pairs from uploaded documents , the spaced repetition engine was the part I most wanted to get right. The AI can generate great questions; spaced repetition is what moves the answers into long-term memory. This post walks through the full implementation: the database schema, the scheduling enum, the item-fetching logic, and the React evaluation UI.
 
 ---
 
 ## What SM-2 Actually Does
 
-The SM-2 algorithm (Piotr Woźniak, SuperMemo, 1987) schedules reviews at increasing intervals based on how well you recalled each item. After every review, you rate your performance on a scale of 0–5. SM-2 then updates two values per item:
+The SM-2 algorithm (Piotr Woźniak, SuperMemo, 1987) schedules reviews at increasing intervals based on how well you recalled each item. After every review, you rate your performance on a scale of 0,5. SM-2 then updates two values per item:
 
 - **Interval** (I): days until the next review
 - **Ease Factor** (EF): a multiplier, starting at 2.5, that adjusts based on performance
@@ -20,7 +20,7 @@ The update rules:
 - If score < 3 (failure): reset interval to 1, keep EF unchanged
 - If score ≥ 3 (success): `new_interval = old_interval * EF`, then adjust EF: `new_EF = EF + (0.1 - (5 - score) * (0.08 + (5 - score) * 0.02))`
 
-The key insight: EF drifts down when you struggle and up when recall is easy. Over time, hard items get reviewed more frequently and easy ones less frequently — automatically, without you managing it.
+The key insight: EF drifts down when you struggle and up when recall is easy. Over time, hard items get reviewed more frequently and easy ones less frequently , automatically, without you managing it.
 
 The current LongTermMemory implementation is **SM-2 inspired but intentionally simplified**: fixed intervals, four rating levels instead of six, no adaptive ease factor yet. That last part matters and I'll be explicit about it.
 
@@ -71,7 +71,7 @@ study_plans
 
 **`scheduled_at = NULL`** is the sentinel for "new item, never reviewed." Once the user rates it for the first time, `scheduled_at` gets set and it enters the review cycle.
 
-**`is_strict`** is a nuance I'll explain below — it controls whether an item must be held until its exact scheduled time or can float.
+**`is_strict`** is a nuance I'll explain below , it controls whether an item must be held until its exact scheduled time or can float.
 
 ---
 
@@ -127,7 +127,7 @@ The four levels map to:
 **`calculateNewScheduledAtByTz`** is where the timezone handling lives. Rather than scheduling "4 days from now in UTC", it schedules "4 days from now at 4:00 AM in the user's local timezone, stored as UTC". This ensures that a user in Tokyo and a user in Rome both get their review queued for early morning local time, not at some random hour dictated by UTC offset.
 
 **`is_strict` and `getStrictStatus()`** encode a review discipline rule:
-- `AGAIN` and `HARD` → `is_strict = 1`. The item must be held until its `scheduled_at` time. You failed or struggled — the algorithm wants you to revisit it soon, and it won't let you skip ahead.
+- `AGAIN` and `HARD` → `is_strict = 1`. The item must be held until its `scheduled_at` time. You failed or struggled , the algorithm wants you to revisit it soon, and it won't let you skip ahead.
 - `GOOD` and `EASY` → `is_strict = 0`. The item can be shown any time on or after its scheduled date. You remembered it well; a bit of flexibility is fine.
 
 ---
@@ -154,7 +154,7 @@ public function QaItemEvaluation(QaItemEvaluationRequest $request): JsonResponse
 }
 ```
 
-`AnswerEvaluation::from($request->difficulty)` converts the string `'again'|'hard'|'good'|'easy'` to the enum case and throws a `ValueError` if the value is invalid — the `QaItemEvaluationRequest` form request validates the input before it reaches here.
+`AnswerEvaluation::from($request->difficulty)` converts the string `'again'|'hard'|'good'|'easy'` to the enum case and throws a `ValueError` if the value is invalid , the `QaItemEvaluationRequest` form request validates the input before it reaches here.
 
 ---
 
@@ -175,7 +175,7 @@ private function getOrderedStudyPlanItems(int $project_id): Collection
 }
 ```
 
-`orderByRaw('scheduled_at IS NULL')` sorts dated items before NULL items. In MySQL, `IS NULL` returns 1 for nulls and 0 for non-null values, so ordering ascending puts 0 (dated items) before 1 (new items). The result: overdue reviews come first, then new items — which is the correct SM-2 priority.
+`orderByRaw('scheduled_at IS NULL')` sorts dated items before NULL items. In MySQL, `IS NULL` returns 1 for nulls and 0 for non-null values, so ordering ascending puts 0 (dated items) before 1 (new items). The result: overdue reviews come first, then new items , which is the correct SM-2 priority.
 
 **`getTodayQaItemsCollection`** adds the date filter for the current session:
 
@@ -196,7 +196,7 @@ private function getTodayQaItemsCollection(int $project_id): Collection
 }
 ```
 
-`endOfDay()` in the user's timezone, then converted to UTC with a 4-hour buffer. The buffer is necessary because GOOD and EASY items are scheduled at 4:00 AM local time via `setTime(4, 0)` — meaning a review triggered today lands at 4 AM tomorrow. Without the buffer, `endOfDay()` (23:59:59) would exclude those items and they'd only appear the following day.
+`endOfDay()` in the user's timezone, then converted to UTC with a 4-hour buffer. The buffer is necessary because GOOD and EASY items are scheduled at 4:00 AM local time via `setTime(4, 0)` , meaning a review triggered today lands at 4 AM tomorrow. Without the buffer, `endOfDay()` (23:59:59) would exclude those items and they'd only appear the following day.
 
 **`fetchQaItemFromCollection`** enforces the strict mode rule at fetch time:
 
@@ -261,7 +261,7 @@ $session_question_completed = StudyPlan::where('project_id', $request->project_i
 
 ## The React Evaluation UI
 
-The `QAItemDisplay` component renders the four evaluation buttons — each maps directly to an `AnswerEvaluation` enum case:
+The `QAItemDisplay` component renders the four evaluation buttons , each maps directly to an `AnswerEvaluation` enum case:
 
 ```typescript
 export type EvaluationDifficulty = 'again' | 'hard' | 'good' | 'easy';
@@ -276,7 +276,7 @@ const handleEvaluate = async (difficulty: EvaluationDifficulty) => {
 };
 ```
 
-The buttons appear only when the answer is visible — forcing the user to actually read the answer before rating themselves. Each button shows the next-review interval inline so users understand what they're committing to:
+The buttons appear only when the answer is visible , forcing the user to actually read the answer before rating themselves. Each button shows the next-review interval inline so users understand what they're committing to:
 
 ```tsx
 <button onClick={() => handleEvaluate('again')} className="... border-red-300 bg-red-50 ...">
@@ -292,7 +292,7 @@ The buttons appear only when the answer is visible — forcing the user to actua
 </button>
 ```
 
-New items display a `new` label (green); items in the review cycle display `review` (orange) — derived directly from `item.scheduled_at === null`.
+New items display a `new` label (green); items in the review cycle display `review` (orange) , derived directly from `item.scheduled_at === null`.
 
 ---
 
@@ -330,7 +330,7 @@ Combined with `Carbon::setTestNow()` for freezing time in timezone tests, these 
 Being explicit about the gap between this implementation and the original SM-2:
 
 **What's implemented:**
-- Four-level self-assessment (maps to SM-2's 0–2 as fail, 3–4 as hard/good, 5 as easy)
+- Four-level self-assessment (maps to SM-2's 0,2 as fail, 3,4 as hard/good, 5 as easy)
 - Short re-show intervals for failures (1 min, 10 min)
 - Multi-day intervals for successes (4 days, 8 days)
 - Strict mode to enforce minimum wait on failures
@@ -340,9 +340,9 @@ Being explicit about the gap between this implementation and the original SM-2:
 **What's missing:**
 - **Adaptive ease factor.** Real SM-2 adjusts the per-item EF based on history. An item you consistently rate Easy slowly gets a longer interval; one you rate Hard repeatedly gets reviewed more often. The current implementation uses fixed intervals regardless of history.
 - **Growing intervals.** After the first Good review (4 days), the second should be `4 * EF ≈ 10 days`, the third `≈ 25 days`, and so on. Currently every Good review resets to 4 days.
-- **Interval tracking per item.** The schema doesn't yet store the current interval or ease factor — they'd need to be added as columns on `study_plans`.
+- **Interval tracking per item.** The schema doesn't yet store the current interval or ease factor , they'd need to be added as columns on `study_plans`.
 
-The fixed intervals are a pragmatic first pass that still produces the core benefit of spaced repetition: items you fail come back soon; items you know well come back later. Adding the adaptive ease factor is the next step — it requires two new columns on `study_plans` (`current_interval` and `ease_factor`) and updating the scheduling logic in `AnswerEvaluation`.
+The fixed intervals are a pragmatic first pass that still produces the core benefit of spaced repetition: items you fail come back soon; items you know well come back later. Adding the adaptive ease factor is the next step , it requires two new columns on `study_plans` (`current_interval` and `ease_factor`) and updating the scheduling logic in `AnswerEvaluation`.
 
 ---
 
@@ -352,10 +352,10 @@ The fixed intervals are a pragmatic first pass that still produces the core bene
 
 **Separate the scheduling logic from the enum.** The `calculateNewScheduledAtByTz` method reads `request()->user()->timezone` directly inside the enum, which couples the scheduling logic to the HTTP request context. A `SpacedRepetitionScheduler` service that accepts a user timezone as a parameter would be easier to test and reuse.
 
-**Cap the minimum interval at the user's next waking hours.** Scheduling a review for "1 minute from now" at 11:50 PM means it'll appear at 11:51 PM. A smarter implementation would schedule short-interval items for the next morning if the user is at end of day — the `calculateNewScheduledAtByTz` logic with `setTime(4, 0)` already does this for multi-day intervals, but not for the minute-level ones.
+**Cap the minimum interval at the user's next waking hours.** Scheduling a review for "1 minute from now" at 11:50 PM means it'll appear at 11:51 PM. A smarter implementation would schedule short-interval items for the next morning if the user is at end of day , the `calculateNewScheduledAtByTz` logic with `setTime(4, 0)` already does this for multi-day intervals, but not for the minute-level ones.
 
 ---
 
-Spaced repetition looks deceptively simple on paper — a few intervals, a rating, a timestamp. The complexity is in the details: timezone handling, strict mode for failures, item ordering, progress tracking across sessions. The fixed-interval foundation works; the adaptive ease factor is the next layer to build on top of it.
+Spaced repetition looks deceptively simple on paper , a few intervals, a rating, a timestamp. The complexity is in the details: timezone handling, strict mode for failures, item ordering, progress tracking across sessions. The fixed-interval foundation works; the adaptive ease factor is the next layer to build on top of it.
 
 The full implementation is part of LongTermMemory, an AI study platform built on Laravel 12, FastAPI, and React 19.

@@ -3,13 +3,13 @@ layout: post
 title: "Timezone-Aware Email Notifications in Laravel: Sending at 8 AM in Every User's Local Time"
 ---
 
-*The problem sounds simple: send a study reminder email at 8 AM. The catch is that your users live in Tokyo, Rome, New York, and Nairobi. Here's how to build a Laravel artisan command that fires for every user at their local 8 AM — including the N+1-avoidance pattern, the deduplication scheme, and the rate-limit stagger that keeps the email provider happy.*
+*The problem sounds simple: send a study reminder email at 8 AM. The catch is that your users live in Tokyo, Rome, New York, and Nairobi. Here's how to build a Laravel artisan command that fires for every user at their local 8 AM , including the N+1-avoidance pattern, the deduplication scheme, and the rate-limit stagger that keeps the email provider happy.*
 
 ---
 
 ## Why "Send at 8 AM" Is Non-Trivial
 
-A cron job that runs at `0 8 * * *` sends email at 8 AM UTC — which is fine for users in London in winter and confusing for everyone else. The standard alternative, running the job every hour and checking whether it's currently 8 AM in each user's timezone, introduces its own problems: N+1 queries, duplicate sends when the cron overlaps, and edge cases around NULL timezone values.
+A cron job that runs at `0 8 * * *` sends email at 8 AM UTC , which is fine for users in London in winter and confusing for everyone else. The standard alternative, running the job every hour and checking whether it's currently 8 AM in each user's timezone, introduces its own problems: N+1 queries, duplicate sends when the cron overlaps, and edge cases around NULL timezone values.
 
 [LongTermMemory](https://longtermemory.com) sends daily study reminder emails to users who have due flashcard items. The requirement: each notification lands at 8 AM in the user's local time, contains direct links to their study sessions (via magic link deep-links), and fires at most once per day regardless of cron retries.
 
@@ -39,9 +39,9 @@ private function getCandidateUserIds(): Collection
 }
 ```
 
-`timezone_identifiers_list()` returns all ~400 valid IANA timezone identifiers. `Carbon::now($tz)->hour` gives the current local hour for each one. At any given moment, roughly 15–25 of those timezones will be at hour 8, depending on DST state.
+`timezone_identifiers_list()` returns all ~400 valid IANA timezone identifiers. `Carbon::now($tz)->hour` gives the current local hour for each one. At any given moment, roughly 15,25 of those timezones will be at hour 8, depending on DST state.
 
-This is evaluated in PHP, not SQL — a `collect()->filter()` loop over 400 strings is fast enough (microseconds) and avoids the complexity of storing UTC-offset data in MySQL.
+This is evaluated in PHP, not SQL , a `collect()->filter()` loop over 400 strings is fast enough (microseconds) and avoids the complexity of storing UTC-offset data in MySQL.
 
 ---
 
@@ -49,7 +49,7 @@ This is evaluated in PHP, not SQL — a `collect()->filter()` loop over 400 stri
 
 Fetching users and their due items in a single query would require a complex self-join that's hard to read and harder to extend. The command uses two separate queries:
 
-**Query 1 — candidate users:** Who is at 8 AM right now and has at least one study plan?
+**Query 1 , candidate users:** Who is at 8 AM right now and has at least one study plan?
 
 ```php
 $query = DB::table('users')
@@ -85,11 +85,11 @@ if ($targetTimezones->contains('UTC')) {
 }
 ```
 
-The condition only activates when UTC is among the target timezones — at any other hour, NULL-timezone users are simply excluded.
+The condition only activates when UTC is among the target timezones , at any other hour, NULL-timezone users are simply excluded.
 
 ---
 
-**Query 2 — due items, grouped by user:** Which projects actually have items to review?
+**Query 2 , due items, grouped by user:** Which projects actually have items to review?
 
 ```php
 private function getDueProjectsByUser(Collection $candidateUserIds): Collection
@@ -118,7 +118,7 @@ The query returns one row per `(user_id, project_id)` pair. `->groupBy('user_id'
 ]
 ```
 
-The due item filter mirrors the session fetching logic: an item qualifies if its `scheduled_at <= now()` and `is_strict = false`, or if `scheduled_at IS NULL` (new item, never reviewed). Strict items — those rated `again` or `hard`, meaning the algorithm wants the user to revisit them soon — are excluded from the notification trigger. They'll reappear once their countdown elapses.
+The due item filter mirrors the session fetching logic: an item qualifies if its `scheduled_at <= now()` and `is_strict = false`, or if `scheduled_at IS NULL` (new item, never reviewed). Strict items , those rated `again` or `hard`, meaning the algorithm wants the user to revisit them soon , are excluded from the notification trigger. They'll reappear once their countdown elapses.
 
 Two queries. No N+1. No model hydration on the candidate pass (just `pluck('id')`).
 
@@ -145,9 +145,9 @@ if ($inserted === 1) {
 }
 ```
 
-`notification_logs` has a unique composite index on `(user_id, type, sent_date)`. `insertOrIgnore` maps to `INSERT IGNORE` in MySQL — if a row with that combination already exists, the insert silently does nothing and returns 0. If it succeeds, it returns 1 and the notification is dispatched.
+`notification_logs` has a unique composite index on `(user_id, type, sent_date)`. `insertOrIgnore` maps to `INSERT IGNORE` in MySQL , if a row with that combination already exists, the insert silently does nothing and returns 0. If it succeeds, it returns 1 and the notification is dispatched.
 
-Crucially, the `sent_date` is the user's local date (`Carbon::now($user->timezone ?? 'UTC')->toDateString()`), not UTC. A user in UTC+14 (Line Islands) whose 8 AM fires at `2026-03-02 18:00 UTC` gets `sent_date = 2026-03-03` — their local date — so a retry at 18:05 UTC still deduplicates correctly.
+Crucially, the `sent_date` is the user's local date (`Carbon::now($user->timezone ?? 'UTC')->toDateString()`), not UTC. A user in UTC+14 (Line Islands) whose 8 AM fires at `2026-03-02 18:00 UTC` gets `sent_date = 2026-03-03` , their local date , so a retry at 18:05 UTC still deduplicates correctly.
 
 ---
 
@@ -169,7 +169,7 @@ $sentCount++;
 - User 3 → 2s delay
 - …
 
-The delay is set at dispatch time, before the notification hits the queue. Each notification is processed at least 1 second after the previous one, keeping throughput at ≤ 1 req/s — safely under the 2 req/s ceiling. The comment in the code flags this as a free-plan constraint: on a paid plan with higher rate limits, the stagger can be reduced or removed.
+The delay is set at dispatch time, before the notification hits the queue. Each notification is processed at least 1 second after the previous one, keeping throughput at ≤ 1 req/s , safely under the 2 req/s ceiling. The comment in the code flags this as a free-plan constraint: on a paid plan with higher rate limits, the stagger can be reduced or removed.
 
 ---
 
@@ -192,7 +192,7 @@ foreach ($this->projectIds as $projectId) {
 }
 ```
 
-Each link is a 30-day temporary signed URL for `magic.login.redirect` — the same passwordless login route used elsewhere in the app. After validating the signature, the backend generates a short-lived one-time code, then redirects the browser to `/auth/callback?code=...&redirect_to=/study-plan/pr/{projectId}`. The user lands directly in their study session, authenticated, without entering any credentials.
+Each link is a 30-day temporary signed URL for `magic.login.redirect` , the same passwordless login route used elsewhere in the app. After validating the signature, the backend generates a short-lived one-time code, then redirects the browser to `/auth/callback?code=...&redirect_to=/study-plan/pr/{projectId}`. The user lands directly in their study session, authenticated, without entering any credentials.
 
 `redirect_to` is appended after signing rather than included in the signed payload because the destination URL is determined at notification send time, and appending a `%2F`-encoded path to an already-signed URL would mangle the HMAC. The backend validates `redirect_to` separately, accepting only relative paths that start with `/`.
 
@@ -266,13 +266,13 @@ public function future(): static
 
 ## What I'd Do Differently
 
-**Batch the `Project::find()` calls inside the notification.** `StudyReviewReminder::toMail()` calls `Project::find($projectId)` in a loop — one query per project. For a user with ten projects, that's ten queries inside a queued job. A single `Project::whereIn('id', $this->projectIds)->get()->keyBy('id')` before the loop would reduce it to one.
+**Batch the `Project::find()` calls inside the notification.** `StudyReviewReminder::toMail()` calls `Project::find($projectId)` in a loop , one query per project. For a user with ten projects, that's ten queries inside a queued job. A single `Project::whereIn('id', $this->projectIds)->get()->keyBy('id')` before the loop would reduce it to one.
 
-**Add a configurable notification window.** The `--hour` option already makes the target hour configurable, but there's no way to send a *second* notification (e.g., an evening reminder at 20:00) without running the command with `--hour=20` and managing two cron entries. A window-based approach — "send between 7 and 9 AM, once per day" — would be more resilient to users whose 8 AM falls between two hourly runs.
+**Add a configurable notification window.** The `--hour` option already makes the target hour configurable, but there's no way to send a *second* notification (e.g., an evening reminder at 20:00) without running the command with `--hour=20` and managing two cron entries. A window-based approach , "send between 7 and 9 AM, once per day" , would be more resilient to users whose 8 AM falls between two hourly runs.
 
 **Prune `notification_logs` on a schedule.** The table grows by one row per user per day. A weekly cleanup (`DELETE WHERE sent_date < NOW() - INTERVAL 7 DAY`) prevents it from becoming a performance liability as the user base scales.
 
 ---
 
-Timezone-aware notifications look like a three-liner until you account for NULL timezones, N+1 queries, deduplication across cron retries, and email provider rate limits. The implementation pattern — collect target timezones in PHP, query users with EXISTS, dedup with `insertOrIgnore`, stagger dispatch — handles all four without anything exotic.
+Timezone-aware notifications look like a three-liner until you account for NULL timezones, N+1 queries, deduplication across cron retries, and email provider rate limits. The implementation pattern , collect target timezones in PHP, query users with EXISTS, dedup with `insertOrIgnore`, stagger dispatch , handles all four without anything exotic.
 
