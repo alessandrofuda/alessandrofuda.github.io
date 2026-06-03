@@ -40,6 +40,9 @@ Nginx → PHP-FPM (Laravel 12)      ←→  MySQL
 
 Documents live in MinIO (S3-compatible object storage). When a user uploads a PDF, Laravel stores it in MinIO and records the metadata in MySQL. When they trigger Q&A generation, Laravel POSTs a job request to the FastAPI service. Celery picks it up, retrieves the files from MinIO, processes them, and when done POSTs a callback to Laravel with the results.
 
+Here the complete technical documentations: <a href="https://longtermemory-docs.readthedocs.io/en/latest/" target="_blank">ReadTheDocs</a>,
+      <a href="https://longtermemory.gitbook.io/longtermemory-docs" target="_blank">GitBook</a>
+
 ---
 
 ## Async Processing and the Push Callback Model
