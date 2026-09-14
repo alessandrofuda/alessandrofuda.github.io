@@ -7,7 +7,7 @@ title: "Building a RAG-Powered Study App: Laravel + Python Microservices"
 
 A few years ago I was grinding through certification study material , thick PDFs, documentation pages, whitepapers , and kept hitting the same wall: the tools that could help me learn efficiently were either too dumb (static flashcard decks you had to write yourself), too expensive, or didn't understand *my* material. What I wanted was something that could read my PDFs and generate questions for me, then schedule those questions based on how well I actually knew them.
 
-So I built it. LongTermMemory is a SaaS study platform that uses Retrieval-Augmented Generation (RAG) to auto-generate question-answer pairs from uploaded materials and implements spaced repetition to move knowledge into long-term memory. This post is a technical walkthrough of the interesting engineering decisions, the mistakes I made, and specifically the one problem that took longer to solve than anything else: chunking.
+So I built it. LongTerMemory is a SaaS study platform that uses Retrieval-Augmented Generation (RAG) to auto-generate question-answer pairs from uploaded materials and implements spaced repetition to move knowledge into long-term memory. This post is a technical walkthrough of the interesting engineering decisions, the mistakes I made, and specifically the one problem that took longer to solve than anything else: chunking.
 
 ---
 

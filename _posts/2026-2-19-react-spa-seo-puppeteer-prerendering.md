@@ -3,7 +3,7 @@ layout: post
 title: "SEO for React SPAs Without SSR: Puppeteer Prerendering in Production"
 ---
 
-*React SPAs are nearly invisible to social media crawlers and slower to index on Google. Here's how I solved SEO for [LongTermMemory](https://longtermemory.com) without migrating to Next.js , using a two-variant routing pattern and a Puppeteer script that prerenders the landing page at build time.*
+*React SPAs are nearly invisible to social media crawlers and slower to index on Google. Here's how I solved SEO for [LongTerMemory](https://longtermemory.com) without migrating to Next.js , using a two-variant routing pattern and a Puppeteer script that prerenders the landing page at build time.*
 
 ---
 
@@ -13,7 +13,7 @@ A React SPA with client-side routing serves one thing to every visitor: a nearly
 
 For a SaaS landing page, this is a real problem. Pricing, FAQ, feature descriptions , all the content that matters for SEO and social sharing , exists only in JavaScript. It never lands in the raw HTML that crawlers read.
 
-The standard answer is server-side rendering: Next.js, Remix, or a similar framework. But LongTermMemory's frontend is a standalone Vite + React 19 SPA that has been in production for months. Migrating to Next.js would mean rewriting routing, data fetching patterns, authentication callbacks, Stripe integration, and the Tailwind configuration , weeks of work for a feature that benefits one route.
+The standard answer is server-side rendering: Next.js, Remix, or a similar framework. But LongTerMemory's frontend is a standalone Vite + React 19 SPA that has been in production for months. Migrating to Next.js would mean rewriting routing, data fetching patterns, authentication callbacks, Stripe integration, and the Tailwind configuration , weeks of work for a feature that benefits one route.
 
 The alternative: **prerender the landing page at build time using Puppeteer**, and serve the resulting static HTML as `dist/index.html`.
 

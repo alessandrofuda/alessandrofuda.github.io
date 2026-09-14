@@ -11,7 +11,7 @@ title: "Timezone-Aware Email Notifications in Laravel: Sending at 8 AM in Every 
 
 A cron job that runs at `0 8 * * *` sends email at 8 AM UTC , which is fine for users in London in winter and confusing for everyone else. The standard alternative, running the job every hour and checking whether it's currently 8 AM in each user's timezone, introduces its own problems: N+1 queries, duplicate sends when the cron overlaps, and edge cases around NULL timezone values.
 
-[LongTermMemory](https://longtermemory.com) sends daily study reminder emails to users who have due flashcard items. The requirement: each notification lands at 8 AM in the user's local time, contains direct links to their study sessions (via magic link deep-links), and fires at most once per day regardless of cron retries.
+[LongTerMemory](https://longtermemory.com) sends daily study reminder emails to users who have due flashcard items. The requirement: each notification lands at 8 AM in the user's local time, contains direct links to their study sessions (via magic link deep-links), and fires at most once per day regardless of cron retries.
 
 The implementation is a single artisan command, `custom:send-study-review-notifications`, that runs hourly.
 

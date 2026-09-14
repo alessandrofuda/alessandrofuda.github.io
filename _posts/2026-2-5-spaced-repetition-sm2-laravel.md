@@ -5,7 +5,7 @@ title: "The SM-2 Algorithm in Practice: Building a Spaced Repetition System in L
 
 *Spaced repetition is the most evidence-backed technique for long-term memorization. Here's how to go from the original SM-2 paper to a working Laravel implementation , including the scheduling logic, timezone handling, strict mode, and the honest parts where this diverges from full SM-2.*
 
-When I built [LongTermMemory](https://longtermemory.com) , an AI-powered study platform that auto-generates Q&A pairs from uploaded documents , the spaced repetition engine was the part I most wanted to get right. The AI can generate great questions; spaced repetition is what moves the answers into long-term memory. This post walks through the full implementation: the database schema, the scheduling enum, the item-fetching logic, and the React evaluation UI.
+When I built [LongTerMemory](https://longtermemory.com) , an AI-powered study platform that auto-generates Q&A pairs from uploaded documents , the spaced repetition engine was the part I most wanted to get right. The AI can generate great questions; spaced repetition is what moves the answers into long-term memory. This post walks through the full implementation: the database schema, the scheduling enum, the item-fetching logic, and the React evaluation UI.
 
 ---
 
@@ -22,7 +22,7 @@ The update rules:
 
 The key insight: EF drifts down when you struggle and up when recall is easy. Over time, hard items get reviewed more frequently and easy ones less frequently , automatically, without you managing it.
 
-The current LongTermMemory implementation is **SM-2 inspired but intentionally simplified**: fixed intervals, four rating levels instead of six, no adaptive ease factor yet. That last part matters and I'll be explicit about it.
+The current LongTerMemory implementation is **SM-2 inspired but intentionally simplified**: fixed intervals, four rating levels instead of six, no adaptive ease factor yet. That last part matters and I'll be explicit about it.
 
 ---
 
@@ -358,4 +358,4 @@ The fixed intervals are a pragmatic first pass that still produces the core bene
 
 Spaced repetition looks deceptively simple on paper , a few intervals, a rating, a timestamp. The complexity is in the details: timezone handling, strict mode for failures, item ordering, progress tracking across sessions. The fixed-interval foundation works; the adaptive ease factor is the next layer to build on top of it.
 
-The full implementation is part of LongTermMemory, an AI study platform built on Laravel 12, FastAPI, and React 19.
+The full implementation is part of LongTerMemory, an AI study platform built on Laravel 12, FastAPI, and React 19.

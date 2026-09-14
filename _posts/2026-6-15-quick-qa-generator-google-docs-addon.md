@@ -5,7 +5,7 @@ title: "Turn Any Google Doc Into a Study Session With Quick Q&A Generator"
 
 *Most study material lives in Google Docs: lecture notes, research summaries, technical specs you need to internalize before a certification. The gap between having a document and actually learning its content is where most studying goes wrong. Quick Q&A Generator closes that gap without making you leave the page.*
 
-I built [Quick Q&A Generator - LongTermMemory](https://workspace.google.com/marketplace/app/quick_qa_generator_longtermemory/628940060292) as a Google Docs add-on to solve a problem I kept running into while building [LongTermMemory](https://longtermemory.com): people had great source material, but turning it into active study prompts required switching tools, copy-pasting, or just hoping passive re-reading would work. It doesn't. Active recall does.
+I built [Quick Q&A Generator - LongTerMemory](https://workspace.google.com/marketplace/app/quick_qa_generator_longtermemory/628940060292) as a Google Docs add-on to solve a problem I kept running into while building [LongTerMemory](https://longtermemory.com): people had great source material, but turning it into active study prompts required switching tools, copy-pasting, or just hoping passive re-reading would work. It doesn't. Active recall does.
 
 ## What It Does
 
@@ -13,7 +13,7 @@ The add-on installs directly into Google Docs and surfaces as a sidebar. Open an
 
 No copy-paste. No switching tabs. No prompt engineering. The AI reads the document, identifies the concepts most worth testing, and frames them as Q&A pairs you can actually study from.
 
-Once you have your pairs, a single **Sync** button pushes the document and its generated Q&A set directly to your LongTermMemory dashboard, where they enter a spaced repetition schedule and become part of your review queue.
+Once you have your pairs, a single **Sync** button pushes the document and its generated Q&A set directly to your LongTerMemory dashboard, where they enter a spaced repetition schedule and become part of your review queue.
 
 ## Why This Fits Into a Real Study Flow
 
@@ -25,7 +25,7 @@ The strengths that make this add-on worth using:
 
 **AI identifies what matters.** Writing good flashcards is a skill, and most people write them too broadly or miss the core concept entirely. The add-on extracts the high-signal concepts (the ones likely to show up in a quiz or surface during an exam) rather than turning every sentence into a question.
 
-**One-click pipeline to spaced repetition.** Generating Q&A pairs is only half the work. The real value is that syncing them to LongTermMemory puts them on a schedule: the SM-2-inspired algorithm (covered in [this earlier post]({% post_url 2026-2-5-spaced-repetition-sm2-laravel %})) ensures you review them at the right intervals, soon after learning, then at increasing delays, so the knowledge sticks rather than fading within a week.
+**One-click pipeline to spaced repetition.** Generating Q&A pairs is only half the work. The real value is that syncing them to LongTerMemory puts them on a schedule: the SM-2-inspired algorithm (covered in [this earlier post]({% post_url 2026-2-5-spaced-repetition-sm2-laravel %})) ensures you review them at the right intervals, soon after learning, then at increasing delays, so the knowledge sticks rather than fading within a week.
 
 **It is free.** There is no paywall for the add-on itself. Install it, use it, sync as many documents as you need.
 
@@ -44,11 +44,11 @@ If you read something in Google Docs and care whether you remember it, this fits
 
 ## How to Get Started
 
-1. Install [Quick Q&A Generator - LongTermMemory](https://workspace.google.com/marketplace/app/quick_qa_generator_longtermemory/628940060292) from the Google Workspace Marketplace (free)
+1. Install [Quick Q&A Generator - LongTerMemory](https://workspace.google.com/marketplace/app/quick_qa_generator_longtermemory/628940060292) from the Google Workspace Marketplace (free)
 2. Open any Google Doc you want to study from
 3. Open the add-on from the **Extensions** menu → **Quick Q&A Generator**
 4. Click **Generate** in the sidebar
-5. Review the Q&A pairs, then click **Sync** to push them to your LongTermMemory dashboard
+5. Review the Q&A pairs, then click **Sync** to push them to your LongTerMemory dashboard
 
 From there, the spaced repetition engine handles scheduling. Your only job is to show up for the review sessions it queues.
 

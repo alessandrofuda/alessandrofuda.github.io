@@ -5,7 +5,7 @@ title: "Passwordless Auth in Laravel 12: Implementing Magic Link Login with Sanc
 
 *No passwords, no reset flows, no bcrypt. Just an email, a signed URL, and a Sanctum token. Here's how to implement magic link authentication in Laravel 12 from scratch , including the edge cases that bite you in production.*
 
-Passwords are a liability. Users forget them, reuse them, and your team ends up maintaining reset flows, email verification, and "remember me" cookie logic for years. For LongTermMemory I went fully passwordless from day one: the only way to log in is to receive a magic link by email. This post walks through the complete implementation , backend in Laravel 12 + Sanctum, frontend in React , including the production gotchas that aren't in any tutorial.
+Passwords are a liability. Users forget them, reuse them, and your team ends up maintaining reset flows, email verification, and "remember me" cookie logic for years. For LongTerMemory I went fully passwordless from day one: the only way to log in is to receive a magic link by email. This post walks through the complete implementation , backend in Laravel 12 + Sanctum, frontend in React , including the production gotchas that aren't in any tutorial.
 
 ---
 
@@ -397,4 +397,4 @@ Cleanup: the `custom:clean-table-in-db personal_access_tokens` artisan command p
 
 Passwordless auth is one of those features that looks simple until you implement it properly. The signed URL mechanics, the reverse proxy normalization, the open redirect validation, and the StrictMode guard are all edge cases that don't appear in tutorials but will bite you in production. Hopefully this saves you some debugging time.
 
-The full implementation is part of [LongTermMemory](https://longtermemory.com) , an AI-powered study platform built on Laravel 12 and React 19.
+The full implementation is part of [LongTerMemory](https://longtermemory.com) , an AI-powered study platform built on Laravel 12 and React 19.

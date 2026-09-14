@@ -9,7 +9,7 @@ title: "Preventing Duplicate Background Jobs in Celery with Redis: A Production 
 
 ## The Bug
 
-[LongTermMemory](https://longtermemory.com) has a Q&A generation pipeline: users upload documents, and a FastAPI service queues a Celery task that runs a RAG pipeline , chunking documents, generating embeddings with OpenAI, producing Q&A flashcard pairs, and calling back to the Laravel backend with the results.
+[LongTerMemory](https://longtermemory.com) has a Q&A generation pipeline: users upload documents, and a FastAPI service queues a Celery task that runs a RAG pipeline , chunking documents, generating embeddings with OpenAI, producing Q&A flashcard pairs, and calling back to the Laravel backend with the results.
 
 The pipeline is expensive. A moderate document set can cost several cents in OpenAI tokens and take a minute to complete. A double-click on "Generate Study Plan" would trigger two `POST /api/generate-qa` requests in quick succession, each passing the duplicate check (there was none), each creating its own Celery task, both running in parallel on the same project data.
 
@@ -222,4 +222,4 @@ The `project_job:{project_id}` index is a thin layer on top of the existing job 
 
 The core pattern is simple: one Redis key per project, pointing to the active job ID. The complexity is in the edge cases , stale keys after unexpected termination, the two-key read in `get_project_active_job`, the three-branch cleanup in the Celery task. Getting those right is what separates a deduplication scheme that works in testing from one that holds up in production.
 
-The full implementation is part of [LongTermMemory](https://longtermemory.com) , an AI study platform built on FastAPI, Celery, Redis, and Laravel 12.
+The full implementation is part of [LongTerMemory](https://longtermemory.com) , an AI study platform built on FastAPI, Celery, Redis, and Laravel 12.

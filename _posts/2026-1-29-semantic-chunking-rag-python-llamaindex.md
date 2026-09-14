@@ -17,7 +17,7 @@ The simplest chunking strategy is a sliding window: split every N tokens with M 
 
 The alternative is semantic chunking: let the content's own structure guide the split points.
 
-LongTermMemory's `DocumentProcessor` uses a two-stage pipeline , structural splitting followed by semantic coherence , implemented in about 90 lines of Python using LlamaIndex.
+LongTerMemory's `DocumentProcessor` uses a two-stage pipeline , structural splitting followed by semantic coherence , implemented in about 90 lines of Python using LlamaIndex.
 
 ---
 
@@ -262,4 +262,4 @@ def chunk_document(self, document_path: str, original_filename: str) -> list[Tex
 
 The two-stage approach costs one embedding API call per document at index time , the semantic stage processes every sentence in every Stage 1 node. For a 50-page document on short-content settings, that's on the order of a few hundred embedding vectors. The payoff is chunks that respect both document structure and semantic boundaries, which translates directly to fewer garbage retrievals when a user's flashcard session asks the RAG pipeline for context.
 
-The full implementation is part of [LongTermMemory](https://longtermemory.com) , an AI study platform built on FastAPI, LlamaIndex, Qdrant, and Laravel 12.
+The full implementation is part of [LongTerMemory](https://longtermemory.com) , an AI study platform built on FastAPI, LlamaIndex, Qdrant, and Laravel 12.

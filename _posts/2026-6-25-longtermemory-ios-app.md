@@ -1,15 +1,15 @@
 ---
 layout: post
-title: "LongTermMemory Is Now on iOS: Spaced Repetition in Your Pocket"
+title: "LongTerMemory Is Now on iOS: Spaced Repetition in Your Pocket"
 ---
 
-*The best study session is the one you actually do. For most people that means five minutes on the train, ten minutes before bed, a quick review during lunch. The LongTermMemory iOS app is built around that reality.*
+*The best study session is the one you actually do. For most people that means five minutes on the train, ten minutes before bed, a quick review during lunch. The LongTerMemory iOS app is built around that reality.*
 
-I've been working on [LongTermMemory](https://longtermemory.com) for a while now, and the web application has been available long enough that I've watched how people actually use it. The pattern is consistent: they upload materials and generate flashcards on a laptop, then they want to review on their phone. The [LongTermMemory iOS app](https://apps.apple.com/us/app/longtermemory-app/id6779253199) closes that loop.
+I've been working on [LongTerMemory](https://longtermemory.com) for a while now, and the web application has been available long enough that I've watched how people actually use it. The pattern is consistent: they upload materials and generate flashcards on a laptop, then they want to review on their phone. The [LongTerMemory iOS app](https://apps.apple.com/us/app/longtermemory-app/id6779253199) closes that loop.
 
 ## What the App Does
 
-The core of LongTermMemory is AI-powered flashcard generation combined with spaced repetition scheduling. You upload a study document (PDF, PowerPoint, a photo of handwritten notes, or plain text), the AI reads it and produces question-answer pairs from the content, and the spaced repetition algorithm schedules each card at the optimal interval to move it into long-term memory before you'd naturally forget it.
+The core of LongTerMemory is AI-powered flashcard generation combined with spaced repetition scheduling. You upload a study document (PDF, PowerPoint, a photo of handwritten notes, or plain text), the AI reads it and produces question-answer pairs from the content, and the spaced repetition algorithm schedules each card at the optimal interval to move it into long-term memory before you'd naturally forget it.
 
 The iOS app brings the review side of that workflow to your iPhone. Your account, your decks, and your progress sync from the web platform, so the workflow looks like this in practice: upload and review generated cards on a computer, then do daily review sessions on your phone whenever you have a spare few minutes.
 
@@ -41,7 +41,7 @@ The app is free to download and use.
 
 ## How to Start
 
-1. Download the [LongTermMemory app from the App Store](https://apps.apple.com/us/app/longtermemory-app/id6779253199)
+1. Download the [LongTerMemory app from the App Store](https://apps.apple.com/us/app/longtermemory-app/id6779253199)
 2. Sign in or create a free account (the same account works on web and mobile)
 3. Upload a piece of study material you're actively working with on the web platform
 4. Open the app on your phone and start your first review session
